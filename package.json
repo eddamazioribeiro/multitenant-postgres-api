@@ -4,17 +4,26 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "nodemon -r dotenv/config ./src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Eduardo Ribeiro",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^20.8.10",
+    "nodemon": "^3.0.1",
     "prisma": "^5.5.2",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@prisma/client": "^5.5.2"
+    "@prisma/client": "^5.5.2",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "knex": "^3.0.1",
+    "morgan": "^1.10.0",
+    "pg": "^8.11.3"
   }
 }
