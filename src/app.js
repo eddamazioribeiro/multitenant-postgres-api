@@ -19,6 +19,17 @@ app.get('/health', (req, res) => {
   return res.status(200).json({ message });
 });
 
+app.get('/migrations', async (req, res) => {
+  const knexConfig = require('./knex/knexfile');
+  const knex = require('knex')(knexConfig[process.env.ENVIRONMENT]);
+
+  const result = await knex.withSchema(CONTROL_SCHEMA)
+  .select('*')
+  .from('knex_migrations');
+
+  return res.status(200).json({ data: result });
+});
+
 app.listen(PORT, () => {
   console.log(`API is running on port: ${PORT}`);
   console.log(`API Health ping: \x1b[1m\x1b[94mhttp://localhost:${PORT}/health\x1b[39m\x1b[22m`);
