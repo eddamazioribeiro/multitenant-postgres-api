@@ -19,7 +19,7 @@ model Tenant {
 model User {
   id       Int     @id @default(autoincrement())
   email    String  @unique
-  username String?
+  username String
 
   @@schema("client_a")
 }

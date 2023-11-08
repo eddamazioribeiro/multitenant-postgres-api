@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon -r dotenv/config ./src/app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "migrate": "knex migrate:latest --knexfile ./src/knex/knexfile.js"
   },
   "author": "Eduardo Ribeiro",
   "license": "ISC",

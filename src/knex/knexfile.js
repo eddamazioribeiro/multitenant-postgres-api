@@ -1,11 +1,17 @@
-// Update with your config settings.
+const path = require('path');
+const envPath = path.join(__dirname, '../../.env');
 
-/**
- * @type { Object.<string, import("knex").Knex.Config> }
- */
+require('dotenv').config({ path: envPath });
+
 module.exports = {
-
   development: {
-    client: 'postgresql',
-    connection: process.env.DATABASE_URL
-  }};
+    client: 'pg',
+    connection: process.env.DATABASE_URL,
+    pluginDivisionMode: 'schema',
+    migrations: {
+      tableName: 'knex_migrations',
+      schemaName: process.env.CONTROL_SCHEMA || 'public'
+     },
+    searchPath: [process.env.CLIENT_SCHEMA, process.env.CONTROL_SCHEMA]
+  }
+}

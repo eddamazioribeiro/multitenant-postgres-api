@@ -5,6 +5,7 @@ const morgan = require('express');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const CORS_ORIGIN = process.env.CORS_ORIGIN || '*';
+const CONTROL_SCHEMA = process.env.CONTROL_SCHEMA || 'public';
 
 app.use(cors({ origin: CORS_ORIGIN }));
 app.use(express.json());
@@ -21,6 +22,23 @@ app.get('/health', (req, res) => {
 app.listen(PORT, () => {
   console.log(`API is running on port: ${PORT}`);
   console.log(`API Health ping: \x1b[1m\x1b[94mhttp://localhost:${PORT}/health\x1b[39m\x1b[22m`);
+
+  const knexConfig = require('./knex/knexfile');
+  const knex = require('knex')(knexConfig[process.env.ENVIRONMENT]);
+
+  knex.raw(`CREATE SCHEMA IF NOT EXISTS ${CONTROL_SCHEMA}`).then(() => {
+    console.info('Initialized database');
+
+    knex.migrate.latest({ directory: './src/knex/migrations'}).then(([batchNo, log]) => {
+      if (!log.length) {
+        console.info('Database is already up to date');
+      } else {
+        console.info('Ran migrations:\n' + log.join('\n'));
+      }
+  
+      knex.destroy();
+    });  
+  });
 });
 
 module.exports = app;
