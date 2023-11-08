@@ -8,7 +8,7 @@ exports.up = function(knex) {
   const CONTROL_SCHEMA = process.env.CONTROL_SCHEMA;
 
   return knex.schema
-  .withSchema(CONTROL_SCHEMA).createTable('tenant', function(table) {
+  .withSchema(CONTROL_SCHEMA).createTableIfNotExists('tenant', function(table) {
     table.increments('id');
     table.string('name', 255).notNullable();
     table.string('schema', 255).notNullable();

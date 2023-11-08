@@ -5,7 +5,7 @@ const morgan = require('express');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const CORS_ORIGIN = process.env.CORS_ORIGIN || '*';
-const CONTROL_SCHEMA = process.env.CONTROL_SCHEMA || 'public';
+const CLIENT_SCHEMA = process.env.CLIENT_SCHEMA || 'public';
 
 app.use(cors({ origin: CORS_ORIGIN }));
 app.use(express.json());
@@ -23,7 +23,7 @@ app.get('/migrations', async (req, res) => {
   const knexConfig = require('./knex/knexfile');
   const knex = require('knex')(knexConfig[process.env.ENVIRONMENT]);
 
-  const result = await knex.withSchema(CONTROL_SCHEMA)
+  const result = await knex.withSchema(CLIENT_SCHEMA)
   .select('*')
   .from('knex_migrations');
 
@@ -37,7 +37,7 @@ app.listen(PORT, () => {
   const knexConfig = require('./knex/knexfile');
   const knex = require('knex')(knexConfig[process.env.ENVIRONMENT]);
 
-  knex.raw(`CREATE SCHEMA IF NOT EXISTS ${CONTROL_SCHEMA}`).then(() => {
+  knex.raw(`CREATE SCHEMA IF NOT EXISTS ${CLIENT_SCHEMA}`).then(() => {
     console.info('Initialized database');
 
     knex.migrate.latest({ directory: './src/knex/migrations'}).then(([batchNo, log]) => {

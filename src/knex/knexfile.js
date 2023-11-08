@@ -10,7 +10,7 @@ module.exports = {
     pluginDivisionMode: 'schema',
     migrations: {
       tableName: 'knex_migrations',
-      schemaName: process.env.CONTROL_SCHEMA || 'public'
+      schemaName: process.env.CLIENT_SCHEMA
      },
     searchPath: [process.env.CLIENT_SCHEMA, process.env.CONTROL_SCHEMA]
   }
