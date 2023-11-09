@@ -1,39 +1,48 @@
-const dbConfig = require('./knex/knexfile');
+const dbConfig = require('../knex/knexfile');
 
-exports.createSchema = (schemaName) => {
-  const knex = require('knex')(dbConfig[process.env.ENVIRONMENT]);
+exports.initDatabase = async () => {
+  const { CONTROL_SCHEMA, CLIENT_SCHEMA } = process.env;
   
-  try {
-    knex.destroy();
-  } catch (err) {
-    console.log(err);
-    knex.destroy();
-  }
-  knex.raw(`CREATE SCHEMA IF NOT EXISTS ${schemaName}`).then(() => {
-    console.info(`Schema successfully created: ${schemaName.toUpperString()}`);
-  });
+  await this.createSchema(CONTROL_SCHEMA);
+  await this.createSchema(CLIENT_SCHEMA);
 }
 
-exports.createClientSchema = () => {
-  const knex = require('knex')(dbConfig[process.env.ENVIRONMENT]);
-  
-  knex.raw(`CREATE SCHEMA IF NOT EXISTS ${CLIENT_SCHEMA}`).then(() => {
-    console.info('Database is already up to date');
- 
+exports.createSchema = (schemaName) => {
+  return new Promise((next, reject) => {
+    try {
+      const knex = require('knex')(dbConfig[process.env.ENVIRONMENT]);
+
+      knex.raw(`CREATE SCHEMA IF NOT EXISTS ${schemaName}`).then(() => {
+        console.info(`Schema successfully created: ${schemaName.toUpperCase()}`);
+      });
+
+      next();
+    } catch (err) {
+      knex.destroy();
+      console.log(err);
+      reject(err);
+    }
   });
 }
 
 exports.runMigrations = () => {
-  const knex = require('knex')(dbConfig[process.env.ENVIRONMENT]);
-
-  knex.migrate.latest({ directory: './src/knex/migrations'}).then(([batchNo, log]) => {
-    if (!log.length) {
-      console.info('Database is already up to date');
-    } else {
-      console.info('Ran migrations:\n' + log.join('\n'));
+  return new Promise((next, reject) => {
+    try {
+      const knex = require('knex')(dbConfig[process.env.ENVIRONMENT]);
+      knex.migrate.latest({ directory: './src/knex/migrations'}).then(([batchNo, log]) => {
+        if (!log.length) {
+          console.info('Database is already up to date');
+        } else {
+          console.info('Ran migrations:\n' + log.join('\n'));
+        }
+    
+        next();
+      }); 
+    } catch (err) {
+      knex.destroy();
+      console.log(err);
+      reject(err);
     }
-
-    knex.destroy();
-  }); 
+  });
 }
 

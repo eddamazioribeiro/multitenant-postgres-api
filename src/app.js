@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('express');
+const { initDatabase, runMigrations } = require('./db/utils');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -30,9 +31,12 @@ app.get('/migrations', async (req, res) => {
   return res.status(200).json({ data: result });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`API is running on port: ${PORT}`);
   console.log(`API Health ping: \x1b[1m\x1b[94mhttp://localhost:${PORT}/health\x1b[39m\x1b[22m`);
+
+  await initDatabase();
+  await runMigrations();
 });
 
 module.exports = app;
