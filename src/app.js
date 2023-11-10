@@ -1,35 +1,27 @@
 const express = require('express');
 const cors = require('cors');
-const morgan = require('express');
+const morgan = require('morgan');
 const { initDatabase, runMigrations } = require('./db/utils');
+// routes
+const healthRoutes = require('./routes/health.router');
+const userRoutes = require('./routes/user.router');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const CORS_ORIGIN = process.env.CORS_ORIGIN || '*';
-const CLIENT_SCHEMA = process.env.CLIENT_SCHEMA || 'public';
 
 app.use(cors({ origin: CORS_ORIGIN }));
 app.use(express.json());
 app.use(morgan('dev'));
 
-app.get('/health', (req, res) => {
-  let uptime = process.uptime();
-  let today = Date().toLocaleString();
-  let message = `API em execução na porta: ${ PORT }, Tempo em atividade: ${ uptime }, ${ today }`;
+app.use('/health', function (req, res, next) {
+  req.config = {
+    PORT: PORT
+  }
+  next();
+}, healthRoutes);
 
-  return res.status(200).json({ message });
-});
-
-app.get('/migrations', async (req, res) => {
-  const knexConfig = require('./knex/knexfile');
-  const knex = require('knex')(knexConfig[process.env.ENVIRONMENT]);
-
-  const result = await knex.withSchema(CLIENT_SCHEMA)
-  .select('*')
-  .from('knex_migrations');
-
-  return res.status(200).json({ data: result });
-});
+app.use('/user', userRoutes);
 
 app.listen(PORT, async () => {
   console.log(`API is running on port: ${PORT}`);
