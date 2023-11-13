@@ -9,19 +9,20 @@ const userRoutes = require('./routes/user.router');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const CORS_ORIGIN = process.env.CORS_ORIGIN || '*';
+const API_BASE_URL = process.env.API_BASE_URL || '/api/v1';
 
 app.use(cors({ origin: CORS_ORIGIN }));
 app.use(express.json());
 app.use(morgan('dev'));
 
-app.use('/health', function (req, res, next) {
+app.use(`${API_BASE_URL}/health`, function (req, res, next) {
   req.config = {
     PORT: PORT
   }
   next();
 }, healthRoutes);
 
-app.use('/user', userRoutes);
+app.use(`${API_BASE_URL}/user`, userRoutes);
 
 app.listen(PORT, async () => {
   console.log(`API is running on port: ${PORT}`);
