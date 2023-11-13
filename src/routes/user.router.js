@@ -15,6 +15,7 @@ const getUserById = async (req, res, next, id) => {
     .from('user')
     .first();
 
+    if (!user) return res.status(200).json({ data: [], message: `User with id ${id} not found` });
     req.user = user;
     next();
   } catch (err) {
@@ -31,7 +32,7 @@ router.post('', async (req, res) => {
 
     const result = await knex('user')
     .withSchema(CLIENT_SCHEMA)
-    .returning(['email', 'username'])
+    .returning(['id', 'email', 'username'])
     .insert({ ...user });
 
     return res.status(200).json({ data: result });
@@ -73,6 +74,20 @@ router.get('/list', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     return res.status(200).json({ data: req.user });
+  } catch (err) {
+    return res.status(400).json({ data: [], error: err });
+  }
+});
+
+router.delete('/:id', async (req, res) => {
+  try {
+    const result = await knex('user')
+    .withSchema(CLIENT_SCHEMA)
+    .where({ id: req.user.id })
+    .returning(['id', 'email', 'username'])
+    .del();
+
+    return res.status(200).json({ data: result });
   } catch (err) {
     return res.status(400).json({ data: [], error: err });
   }
